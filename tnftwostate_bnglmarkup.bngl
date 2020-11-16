@@ -1,0 +1,85 @@
+
+begin model
+
+
+begin parameters
+#units in hr-1 
+    gm 1.09   	
+    gp gm/3        #changed 
+
+    ka 1.3        
+
+    #b 11 #changing with time burst size
+
+    ki 15                
+
+    #kt ki*b  #also changing with time
+
+    ap	1             
+
+    K 500       
+
+    A 25       
+
+    export 18       
+    
+     tick 100 # clock tick rate
+            
+    
+end parameters
+
+begin molecule types
+	tnfpromotor(promoter~0~1)
+	mRNA()
+	TNF(inside~0~1)
+	Null()
+	  ticks()   # the time variable
+end molecule types
+
+begin species
+    tnfpromotor(promoter~0)  1
+    mRNA()           2.34
+    TNF(inside~1)	0
+    TNF(inside~0)	0
+    $Null()          1
+      ticks()  0
+end species
+
+begin observables
+	Molecules TNFi	TNF(inside~1)
+	Molecules TNFo	TNF(inside~0)
+	Molecules Promotor_a	tnfpromotor(promoter~1)	
+	Molecules Promotor_i	tnfpromotor(promoter~0)
+	Molecules mRNA 	mRNA()
+	Molecules t_obs ticks() # Exposes value of ticks to functions
+end observables
+
+begin functions
+	
+	b() = -185000*exp(-1.2128*t_obs/tick) + 185001*exp(-1.2126*t_obs/tick)
+	kt() = 15*b()
+	fm() = kt()+(A*kt())*(TNFo)/(K+(TNFo))
+	
+end functions
+
+begin reaction rules
+	tnfpromotor(promoter~0) <-> tnfpromotor(promoter~1)		ka,ki
+	tnfpromotor(promoter~1)	-> tnfpromotor(promoter~1) + mRNA()		fm()
+    mRNA() -> mRNA() + TNF(inside~1)	ap
+    TNF(inside~1)->TNF(inside~0)	export
+	mRNA() -> Null()			gm
+	TNF(inside~1) -> Null()				gp	
+	TNF(inside~0) -> Null()				gp
+	Null() -> ticks()  					tick
+end reaction rules
+
+end model
+
+
+
+ simulate({method=>"ssa",t_end=>24,n_steps=>1440,print_functions=>1})
+
+
+
+
+
