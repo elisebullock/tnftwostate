@@ -4,26 +4,35 @@ begin model
 
 begin parameters
 #units in hr-1 
-    gm 1.09   	
-    gp gm/3        #changed 
 
+# gm - degradation rate for mRNA - fitted from experiments
+    gm 1.09   
+
+# gp - degradation rate for protein	
+    gp gm/3         
+
+# bk - burst frequency, activation rate of promotor
     ka 1.3        
 
-    #b 11 #changing with time burst size
-
+# ki - inactivation rate
     ki 15                
 
     #kt ki*b  #also changing with time
+    #b 11 #changing with time burst size
 
+# ap - translation rate of protein
     ap	1             
 
+# Feedback terms
     K 500       
 
     A 25       
 
+# Export rate of TNF
     export 18       
     
-     tick 100 # clock tick rate
+# Clock tick rate
+     tick 100
             
     
 end parameters
